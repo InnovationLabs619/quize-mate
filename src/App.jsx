@@ -16,6 +16,15 @@ function App() {
   const [activeQuiz, setActiveQuiz] = useState(null);
 
   useEffect(() => {
+    // Sync initial state
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
@@ -28,12 +37,21 @@ function App() {
   }, []);
 
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
+    const isDark = !isDarkMode;
+    setIsDarkMode(isDark);
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
+      localStorage.theme = 'dark';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
+      localStorage.theme = 'light';
+    }
   };
 
   if (!session) {
-    return <div className={isDarkMode ? 'dark' : ''}><AuthForm onAuthSuccess={(user) => setSession(user)} /></div>;
+    return <AuthForm onAuthSuccess={(user) => setSession(user)} />;
   }
 
   // Mock Quiz Data for implementation
@@ -62,10 +80,10 @@ function App() {
           
           <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 dark:bg-[#050510]/80 backdrop-blur-3xl border-b border-gray-100 dark:border-white/5 px-8 h-20 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-gradient-to-tr from-[#4F46E5] to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all rotate-3">
-                <ShieldCheck className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-tr from-indigo-500 via-[#4F46E5] to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all rotate-3 ring-4 ring-indigo-500/20">
+                <Zap className="w-6 h-6 text-white fill-current" />
               </div>
-              <span className="text-2xl font-black tracking-tighter uppercase">QUIZMATE</span>
+              <span className="text-2xl font-black tracking-tighter uppercase italic">QUIZMATE</span>
             </Link>
 
             <div className="hidden md:flex items-center gap-2 bg-gray-100 dark:bg-white/5 p-1.5 rounded-[1.25rem] border border-transparent dark:border-white/5">
@@ -83,15 +101,17 @@ function App() {
             <div className="flex items-center gap-4">
               <button 
                 onClick={toggleTheme}
-                className="p-3 bg-gray-100 dark:bg-white/5 rounded-2xl border border-transparent dark:border-white/5 text-gray-500 hover:text-[#4F46E5] transition-all active:scale-90"
+                title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+                className="p-3 bg-gray-100 dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:text-[#4F46E5] dark:hover:text-indigo-400 transition-all active:scale-95 shadow-sm hover:shadow-md dark:hover:bg-white/10"
               >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {isDarkMode ? <Sun className="w-5 h-5 transition-transform group-hover:rotate-45" /> : <Moon className="w-5 h-5 transition-transform group-hover:-rotate-12" />}
               </button>
               <button 
                 onClick={() => supabase.auth.signOut()}
-                className="p-3 bg-gray-100 dark:bg-red-500/10 rounded-2xl border border-transparent dark:border-red-500/10 text-gray-500 dark:text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                title="Sign Out"
+                className="p-3 bg-red-50 dark:bg-red-500/10 rounded-2xl border border-red-100 dark:border-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm group active:scale-95"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
               </button>
             </div>
           </nav>

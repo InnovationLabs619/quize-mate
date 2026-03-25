@@ -1,3 +1,6 @@
+@theme {
+  --variant-dark: (selector(html.dark));
+}
 @import "tailwindcss";
 
 :root {
@@ -6,16 +9,35 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  background-color: #ffffff;
-  color: #000000;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Theme Tokens */
+  --chart-grid: #e5e7eb;
+  --chart-text: #9ca3af;
+  --chart-primary: #4f46e5;
+  --chart-tooltip-bg: rgba(255, 255, 255, 0.9);
+  --chart-tooltip-border: #f3f4f6;
 }
 
-.dark {
+html.dark {
+  --chart-grid: #222244;
+  --chart-text: #444466;
+  --chart-primary: #6366f1;
+  --chart-tooltip-bg: rgba(17, 17, 34, 0.9);
+  --chart-tooltip-border: #222244;
+}
+
+/* Ensure background color is managed by Tailwind or classes */
+html {
+  background-color: #ffffff;
+  color: #0d0d12;
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.dark {
   background-color: #050510;
   color: #ffffff;
 }
@@ -25,6 +47,8 @@ body {
   display: flex;
   min-width: 320px;
   min-height: 100vh;
+  background-color: inherit;
+  color: inherit;
 }
 
 #root {
